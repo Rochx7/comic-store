@@ -56,6 +56,18 @@ class ComicController{
     }
   }
 
+  static async listComicByPublisher (req, res){
+    const publisher = req.query.publisher
+    try {
+      const comicsByPublisher = await comics.find({publisher: publisher})
+      res.status(200).json(comicsByPublisher)
+    } catch (error) {
+      res.status(500).json({message: `${error.message} - Error on get comic by publisher`})
+      
+    }
+    
+  }
+
 }
 
 export default ComicController

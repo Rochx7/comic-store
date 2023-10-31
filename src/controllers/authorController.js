@@ -1,3 +1,4 @@
+import NotFound from "../errors/NotFound.js";
 import { author } from "../models/Author.js";
 
 class AuthorController{
@@ -8,27 +9,29 @@ class AuthorController{
       res.status(200).json(authorList);
     } catch (error) {
       res.status(500).json({message: `${error.message} - Error on get author`})
-      
     }
   }
 
-  static async listAuthorById (req,res){
+  static async listAuthorById (req,res,next){
     try {
       const id = req.params.id
       const findendAuthor = await author.findById(id);
-      res.status(200).json(findendAuthor);
+      if(findendAuthor !== null){
+        res.status(200).json(findendAuthor);
+      }else {
+        next(new NotFound('Id do autor não encontrado.'))
+      }
     } catch (error) {
-      res.status(500).json({message: `${error.message} - Error on get author by id`})
-      
+      next(error)
     }
   }
 
-  static async registerNewAuthor (req,res){
+  static async registerNewAuthor (req,res,next){
     try {
       const newAuthor = await author.create(req.body);
       res.status(201).json({message:'Success on register new author', author: newAuthor})
     } catch (error) {
-      res.status(500).json({message: `${error.message} - Error on register new author`})
+      next(error)
     }
   }
 

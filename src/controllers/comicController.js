@@ -3,23 +3,22 @@ import comics from "../models/Comics.js";
 
 class ComicController{
 
-  static async listComics (req,res){
+  static async listComics (req,res,next){
     try {
       const comicsList = await comics.find({});
       res.status(200).json(comicsList);
     } catch (error) {
-      res.status(500).json({message: `${error.message} - Error on get comics`})
-      
+      next(error) 
     }
   }
 
-  static async listComicById (req,res){
+  static async listComicById (req, res, next){
     try {
       const id = req.params.id
       const findendComic = await comics.findById(id);
       res.status(200).json(findendComic);
     } catch (error) {
-      res.status(500).json({message: `${error.message} - Error on get comic by id`})
+      next(error)
       
     }
   }
@@ -32,7 +31,7 @@ class ComicController{
       const createdComic = await comics.create(comicBody)
       res.status(201).json({message:'Success on register new comic', comic: createdComic})
     } catch (error) {
-      res.status(500).json({message: `${error.message} - Error on register new comic`})
+      next(error)
     }
   }
 

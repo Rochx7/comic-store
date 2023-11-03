@@ -1,5 +1,5 @@
 import NotFound from "../errors/NotFound.js";
-import { author } from "../models/Author.js";
+import { author } from "../models/index.js";
 
 class AuthorController{
 

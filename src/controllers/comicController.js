@@ -1,5 +1,5 @@
-import { author } from "../models/Author.js";
-import comics from "../models/Comics.js";
+import { author, comics } from "../models/index.js";
+
 
 class ComicController{
 
@@ -16,10 +16,13 @@ class ComicController{
     try {
       const id = req.params.id
       const findendComic = await comics.findById(id);
-      res.status(200).json(findendComic);
+      if(findendComic !== null){
+        res.status(200).json(findendComic);
+      }else {
+        next(new NotFound('Id da hq não encontrada.'))
+      }
     } catch (error) {
-      next(error)
-      
+      next(error) 
     }
   }
 
@@ -55,18 +58,46 @@ class ComicController{
     }
   }
 
-  static async listComicByPublisher (req, res){
-    const publisher = req.query.publisher
+  static async listComicByFilter(req, res){
     try {
-      const comicsByPublisher = await comics.find({publisher: publisher})
+      const search = await processSearch(req.query)
+
+      if(search !==null){
+        const comicsByPublisher = await comics.find(search)
+
       res.status(200).json(comicsByPublisher)
+      }else{
+        res.status(200).json([])
+      }
     } catch (error) {
       res.status(500).json({message: `${error.message} - Error on get comic by publisher`})
-      
     }
     
   }
 
+}
+
+async function processSearch(params){
+  const {publisher, title, name} = params
+
+  let search = {}
+
+  if(publisher) search.publisher = publisher
+  
+  if(title) search.title = {$regex: title, $options:"i"}
+
+  if(name){
+    const authorByName = await author.findOne({ name: name})
+
+    if(authorByName !== null){
+      search.author = author._id
+    }else{
+      search = null
+    }
+    
+  }
+
+  return search
 }
 
 export default ComicController

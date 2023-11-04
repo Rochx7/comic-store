@@ -1,12 +1,13 @@
 import { author, comics } from "../models/index.js";
 
-
 class ComicController{
 
   static async listComics (req,res,next){
     try {
-      const comicsList = await comics.find({});
-      res.status(200).json(comicsList);
+      const searchComics = comics.find()
+
+      req.result = searchComics
+      next()
     } catch (error) {
       next(error) 
     }
@@ -58,14 +59,14 @@ class ComicController{
     }
   }
 
-  static async listComicByFilter(req, res){
+  static async listComicByFilter(req, res,next){
     try {
       const search = await processSearch(req.query)
 
       if(search !==null){
-        const comicsByPublisher = await comics.find(search)
-
-      res.status(200).json(comicsByPublisher)
+        const comicsByPublisher = comics.find(search)
+        req.result = comicsByPublisher
+        next()
       }else{
         res.status(200).json([])
       }
